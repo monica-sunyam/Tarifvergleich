@@ -8,7 +8,7 @@ import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 const DOC_BASE_URL =
   "http://192.168.0.155:8080/assets/customers/";
 
-export interface ContractEditOption {
+export interface ChangeContract {
   deliveryId?: number;
 
   createdOn?: number;
@@ -47,20 +47,20 @@ export interface ContractDocument {
 }
 
 @Component({
-  selector: "app-contract-edit-options",
+  selector: "app-change-contract",
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: "./contract-edit-options.component.html",
-  styleUrl: "./contract-edit-options.component.css",
+  templateUrl: "./change-contract.component.html",
+  styleUrl: "./change-contract.component.css",
 })
-export class ContractEditOptionsComponent implements OnInit, OnDestroy {
-  contractEditOptions: ContractEditOption[] = [];
+export class ChangeContractsComponent implements OnInit, OnDestroy {
+  ChangeContracts: ChangeContract[] = [];
 
   isLoading = false;
   errorMessage = "";
 
   // Sidebar
-  selectedRequest: ContractEditOption | null = null;
+  selectedRequest: ChangeContract | null = null;
   selectedIndex: number | null = null;
   isSidebarOpen = false;
 
@@ -79,10 +79,10 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
     this.searchSub = this.searchTerm$
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => {
-        this.fetchContractEditOptions();
+        this.fetchChangeContracts();
       });
 
-    this.fetchContractEditOptions();
+    this.fetchChangeContracts();
   }
 
   ngOnDestroy(): void {
@@ -103,7 +103,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
     this.searchTerm$.next("");
   }
 
-  fetchContractEditOptions(): void {
+  fetchChangeContracts(): void {
     this.isLoading = true;
     this.errorMessage = "";
 
@@ -126,7 +126,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
             ? res.data
             : [];
 
-          this.contractEditOptions = items;
+          this.ChangeContracts = items;
         },
 
         error: (err: any) => {
@@ -145,7 +145,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
 
   trackById(
     index: number,
-    item: ContractEditOption
+    item: ChangeContract
   ): string | number {
     return `${item.deliveryId ?? "unknown"}-${
       item.selectedOption
@@ -154,7 +154,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   getCustomerName(
-    request: ContractEditOption
+    request: ChangeContract
   ): string {
     return (
       `${request.customer?.firstName ?? ""} ${
@@ -164,7 +164,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   customerInitial(
-    request: ContractEditOption
+    request: ChangeContract
   ): string {
     const name = this.getCustomerName(request);
 
@@ -172,7 +172,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   getOptionName(
-    request: ContractEditOption
+    request: ChangeContract
   ): string {
     return (
       request.selectedOption?.optionName ||
@@ -181,7 +181,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   getChangedValue(
-    request: ContractEditOption
+    request: ChangeContract
   ): string {
     return (
       request.firstName ??
@@ -286,7 +286,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   getDocuments(
-    request: ContractEditOption
+    request: ChangeContract
   ): ContractDocument[] {
     if (!request.filePath) {
       return [];
@@ -304,7 +304,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   getDocumentName(
-    request: ContractEditOption
+    request: ChangeContract
   ): string {
     if (!request.filePath) {
       return this.getOptionName(request);
@@ -336,7 +336,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   openSidebar(
-    request: ContractEditOption,
+    request: ChangeContract,
     index: number
   ): void {
     if (
@@ -359,7 +359,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   openDocuments(
-    request: ContractEditOption,
+    request: ChangeContract,
     event?: Event
   ): void {
     event?.stopPropagation();
@@ -395,7 +395,7 @@ export class ContractEditOptionsComponent implements OnInit, OnDestroy {
   }
 
   getDocumentCount(
-    request: ContractEditOption
+    request: ChangeContract
   ): number {
     return this.getDocuments(request).length;
   }

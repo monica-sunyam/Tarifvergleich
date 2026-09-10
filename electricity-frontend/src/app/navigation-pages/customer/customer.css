@@ -2427,6 +2427,16 @@
 .full-width {
   width: 100%;
 }
+.status-badge-blue {
+  display: inline-block;
+  border: 1px solid #003b7a;
+  color: #003b7a;
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 10px;
+}
 
 .status-badge {
   display: inline-block;

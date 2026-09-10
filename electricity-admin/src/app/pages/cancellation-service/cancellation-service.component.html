@@ -1,0 +1,204 @@
+<div class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow">
+
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white shrink-0">Kündigungsanfragen</h2>
+        <button (click)="fetchCancellationRequests(1)"
+            class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm active:scale-95">
+            Aktualisieren
+        </button>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoading) {
+    <div class="flex items-center gap-2 text-gray-500 text-sm py-4">
+        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
+        <span>Anfragen werden geladen...</span>
+    </div>
+    }
+
+    <!-- Table -->
+    @if (!isLoading && !errorMessage && requests.length > 0) {
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-separate border-spacing-0">
+            <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                <tr>
+                    <th class="px-4 py-3 rounded-tl-lg">ID</th>
+                    <th class="px-4 py-3">Kunde</th>
+                    <th class="px-4 py-3">Beendigung</th>
+                    <th class="px-4 py-3">Art der Beendigung</th>
+                    <th class="px-4 py-3">Wunschtermin</th>
+                    <th class="px-4 py-3">Sparte</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3 text-right rounded-tr-lg">Aktion</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y dark:divide-gray-700">
+                @for (req of requests; track req.CustomerContractCancellationRequestId) {
+
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                    (click)="toggleRow(req.CustomerContractCancellationRequestId)">
+
+                    <td class="px-4 py-4">
+                        <span class="text-xs font-mono text-gray-400">#{{ req.CustomerContractCancellationRequestId
+                            }}</span>
+                    </td>
+
+                    <td class="px-4 py-4">
+                        <div class="font-semibold text-gray-900 dark:text-white">
+                            {{ req.customer.salutation }} {{ req.customer.title }} {{ req.customer.firstName }} {{
+                            req.customer.lastName }}
+                        </div>
+                        <div class="text-xs text-gray-400">{{ req.customer.email }}</div>
+                    </td>
+
+                    <td class="px-4 py-4 text-gray-700 dark:text-gray-300">
+                        {{ req.selectedCategory.categoryName }}
+                    </td>
+
+                    <td class="px-4 py-4 text-gray-500 dark:text-gray-400 text-xs">
+                        {{ req.terminationType }}
+                    </td>
+
+                    <td class="px-4 py-4 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
+                        {{ (req.desiredDate * 1000) | date:'dd.MM.yyyy' }}
+                    </td>
+
+                    <!-- <td class="px-4 py-4 text-gray-500 dark:text-gray-400 text-xs">
+            {{ req.energyBranch }}
+          </td> -->
+                    <td class="px-4 py-4">
+                        @if (req.energyBranch.toUpperCase() === "ELECTRICITY") {
+                        <span
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 whitespace-nowrap">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Strom
+                        </span>
+                        }
+                        @else if (req.energyBranch.toUpperCase() === "GAS") {
+                        <span
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 whitespace-nowrap">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Gas
+                        </span>
+                        }
+                        @else {
+                        <span class="text-gray-400">—</span>
+                        }
+                    </td>
+                    <td class="px-4 py-4">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="statusClasses(req)">
+                            {{ statusLabel(req) }}
+                        </span>
+                    </td>
+
+                    <td class="px-4 py-4 text-right" (click)="$event.stopPropagation()">
+                        @if (req.deliveryId) {
+                        <button (click)="openBookingDetails(req.deliveryId, $event)" title="Buchungsdetails öffnen"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 transition active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                        }
+                    </td>
+                </tr>
+
+                <!-- Expanded Detail Row -->
+                @if (expandedRow === req.CustomerContractCancellationRequestId) {
+                <tr class="bg-blue-50/30 dark:bg-gray-800/40">
+                    <td colspan="8" class="px-8 py-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+
+                            <div class="space-y-1">
+                                <p class="text-xs text-gray-400 uppercase tracking-wider mb-2">Kündigungsdetails</p>
+                                <p><strong>Grund:</strong> {{ req.reason || '—' }}</p>
+                                <p><strong>Weitere Infos:</strong> {{ req.additionalInfo || '—' }}</p>
+                                <p><strong>Erstellt:</strong> {{ (req.createdOn * 1000) | date:'dd.MM.yyyy HH:mm' }}</p>
+                            </div>
+
+                            <div class="space-y-1">
+                                <p class="text-xs text-gray-400 uppercase tracking-wider mb-2">Verlauf</p>
+                                <p>
+                                    <strong>Erledigt am:</strong>
+                                    @if (req.resolvedOn) {
+                                    <span>{{ (req.resolvedOn * 1000) | date:'dd.MM.yyyy HH:mm' }}</span>
+                                    } @else { <span class="text-gray-400 italic">—</span> }
+                                </p>
+                                <p>
+                                    <strong>Abgelehnt am:</strong>
+                                    @if (req.rejectedOn) {
+                                    <span>{{ (req.rejectedOn * 1000) | date:'dd.MM.yyyy HH:mm' }}</span>
+                                    } @else { <span class="text-gray-400 italic">—</span> }
+                                </p>
+                            </div>
+
+                            <div class="space-y-1">
+                                <p class="text-xs text-gray-400 uppercase tracking-wider mb-2">Rückruf-Details</p>
+                                <p><strong>Wochentag:</strong> {{ req.counselling.weekDay }}</p>
+                                <p><strong>Zeitfenster:</strong> {{ req.counselling.timeSlot }} Uhr</p>
+                                <p><strong>Telefon:</strong> +49 {{ req.counselling.mobileNumber }}</p>
+                                @if (req.counselling.description) {
+                                <p><strong>Notiz:</strong> {{ req.counselling.description }}</p>
+                                }
+                            </div>
+
+                        </div>
+                    </td>
+                </tr>
+                }
+
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (!isLoading && errorMessage) {
+    <div class="text-center py-12">
+        <p class="text-red-500 font-medium">{{ errorMessage }}</p>
+        <button (click)="fetchCancellationRequests(1)" class="mt-2 text-sm text-brand-500 underline">Erneut
+            versuchen</button>
+    </div>
+    }
+
+    <!-- Empty -->
+    @if (!isLoading && !errorMessage && requests.length === 0) {
+    <div class="text-center py-12">
+        <p class="text-gray-500 font-medium">Keine Kündigungsanfragen gefunden</p>
+    </div>
+    }
+
+    <!-- Pagination -->
+    @if (!isLoading && !errorMessage && requests.length > 0) {
+    <div class="flex items-center justify-between px-4 py-4 border-t dark:border-gray-700 mt-4">
+        <div class="text-sm text-gray-500">
+            Seite <span class="font-medium text-gray-900 dark:text-white">{{ currentPage }}</span>
+            von <span class="font-medium text-gray-900 dark:text-white">{{ totalPages }}</span>
+        </div>
+        <div class="flex gap-2">
+            <button (click)="prevPage()" [disabled]="currentPage === 1 || isLoading"
+                class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                Zurück
+            </button>
+            <button (click)="nextPage()" [disabled]="currentPage >= totalPages || isLoading"
+                class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                Weiter
+            </button>
+        </div>
+    </div>
+    }
+</div>

@@ -258,7 +258,7 @@ export class Contact implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.http
-      .post('http://192.168.0.175:8080/save-customer-contact', {
+      .post('http://192.168.0.155:8080/save-customer-contact', {
         ...this.formData,
         adminId: 1,
         categoryId: this.selectedCategory.id,

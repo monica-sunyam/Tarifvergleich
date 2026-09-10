@@ -115,8 +115,22 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       <path d="M12 17h.01" />
     </svg>`,
       subItems: [
-        { name: "Service Requests", path: "/customer-query/customer-queries" },
+        // { name: "Service Requests", path: "/customer-query/customer-queries" },
         { name: "Contact Queries", path: "/contact-query/list" },
+      ],
+    },
+    {
+      name: "Service Requests",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3" />
+      <path d="M9 12h6" />
+      <path d="M9 16h6" />
+      <path d="M9 8h6" />
+    </svg>`,
+      subItems: [
+        { name: "Service Requests", path: "/customer-query/customer-queries" },
+        { name: "Cancellation Service", path: "/cancellation-service/cancellation-service-request" },
       ],
     },
     {
@@ -292,8 +306,8 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
           path: "/open-provider-action/change-amount",
         },
         {
-          name: "Contract Edit Options",
-          path: "/open-provider-action/contract-edit-options",
+          name: "Change Contract Details",
+          path: "/open-provider-action/change-contract",
         },
       ],
     },

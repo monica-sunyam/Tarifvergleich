@@ -27,6 +27,7 @@ export type CallbackCustomer = {
   };
 
   deliveryId?: number | null;
+  isCancellationRequest?: boolean;
 };
 
 @Component({

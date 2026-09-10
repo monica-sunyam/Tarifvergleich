@@ -1230,7 +1230,18 @@
 
                 <button class="meter-orange-btn">Umzug melden</button>
 
-                <button class="meter-orange-btn" (click)="cancellationService(item)">Kündigungsservice</button>
+                <!-- <button class="meter-orange-btn" (click)="cancellationService(item)">Kündigungsservice</button> -->
+              
+              
+                <button *ngIf="!item.requestcancellation"
+                  class="meter-orange-btn" (click)="cancellationService(item)">
+                  Kündigungsservice
+                </button>
+
+                <div *ngIf="item.requestcancellation" class="status-badge">
+                  Kündigungsservice ({{ getMeterCancellationStatus(item) }})
+                </div>
+
               </div>
             </div>
             <!-- BUTTONS -->
@@ -3629,8 +3640,9 @@
             <span class="field-label" style="display: block; margin-top: 20px;">
               Bitte beschreiben Sie den genauen Grund
             </span>
-            <textarea class="information-box" rows="3"
-              placeholder="z. B. Details zu Ihrem Umzug oder dem neuen Angebot"></textarea>
+            <textarea class="information-box" rows="3" placeholder="z. B. Details zu Ihrem Umzug oder dem neuen Angebot"
+              [(ngModel)]="cancellationReason"></textarea>
+            <div class="field-error-msg" *ngIf="fieldErrors['reason']">{{ fieldErrors['reason'] }}</div>
 
             <!-- EFFECTIVE DATE -->
             <span class="field-label" style="display: block; margin-top: 20px;">
@@ -3639,7 +3651,8 @@
             <div class="form-row">
               <div class="form-group" style="flex: 0 0 220px">
                 <div class="field-wrap" (click)="openDatePicker(cancellationDateInput)">
-                  <input type="date" #cancellationDateInput style="cursor: pointer;" />
+                  <input type="date" #cancellationDateInput style="cursor: pointer;"
+                    [(ngModel)]="cancellationData.effectiveDate" />
                 </div>
               </div>
             </div>
@@ -3710,6 +3723,7 @@
                 ({{ day.label }})
               </button>
             </div>
+            <div class="field-error-msg" *ngIf="fieldErrors['selectedDay']">{{ fieldErrors['selectedDay'] }}</div>
 
             <!-- Time Selection -->
             <span class="field-label"> Bitte wählen Sie die Uhrzeit </span>
@@ -3720,12 +3734,17 @@
                 {{ slot.label }}
               </button>
             </div>
+            <div class="field-error-msg" *ngIf="fieldErrors['selectedTimeSlot']">{{ fieldErrors['selectedTimeSlot'] }}
+            </div>
+
 
             <!-- Additional Information -->
             <span class="field-label"> Weitere Informationen </span>
             <textarea class="information-box" rows="4"
               placeholder="Platz für Infos, z.B. genaue Uhrzeit, an der Sie gut erreichbar sind"
               [(ngModel)]="scheduleDescription"></textarea>
+            <div class="field-error-msg" *ngIf="fieldErrors['scheduleDescription']">{{
+              fieldErrors['scheduleDescription'] }}</div>
 
             <!-- Success/Error -->
             <div class="api-message success" *ngIf="scheduleSuccessMessage">
@@ -3738,22 +3757,19 @@
 
             <!-- Single Submit Button -->
             <div class="meter-btn-row">
-              <button type="button" class="btn-primary">
-                <span>
-                  <span class="spinner"></span>
-                  Einreichen...
+              <button type="button" class="btn-primary" (click)="submitCancellation()"
+                [disabled]="isSubmittingCancellation">
+                <span *ngIf="isSubmittingCancellation">
+                  <span class="spinner"></span> Einreichen...
                 </span>
-
-                <ng-template #normal>
-                  <span>Anfrage senden</span>
-                </ng-template>
+                <span *ngIf="!isSubmittingCancellation">Anfrage senden</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- <div class="success-box" style="width: auto" *ngIf="submittedCallback">
+      <div class="success-box" style="width: auto" *ngIf="submittedCallback">
         <div class="success-content">
           <div class="success-row">
             <img src="assets/icons/Kreis_Haken_gruen.png" alt="success" />
@@ -3762,15 +3778,15 @@
               <div class="tab-header">Rückruf erfolgreich angefragt!</div>
 
               <div class="tab-text">
-                Ihre Rückrufanfrage wurde erfolgreich übermittelt. Unser Berater wird Sie zum
-                gewünschten Zeitpunkt kontaktieren.
+                {{ scheduleSuccessMessage || 'Ihre Rückrufanfrage wurde erfolgreich übermittelt. Unser Berater wird Sie
+                zum gewünschten Zeitpunkt kontaktieren.' }}
               </div>
 
               <div class="tab-text">Vielen Dank für Ihre Anfrage.</div>
             </div>
           </div>
         </div>
-      </div> -->
+      </div>
     </div>
     <!--══════════ Meters Section End ══════════-->
 

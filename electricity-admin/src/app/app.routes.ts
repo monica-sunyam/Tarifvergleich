@@ -42,7 +42,8 @@ import { ReportMeterReadingComponent } from "./pages/open-provider-action/report
 import { CustomerInvoiceRequestComponent } from "./pages/open-provider-action/customer-invoice-request/customer-invoice-request.component";
 import { EnergySupplierComponent } from "./pages/open-provider-action/energy-supplier/energy-supplier.component";
 import { ChangeAmountComponent } from "./pages/open-provider-action/change-amount/change-amount.component";
-import { ContractEditOptionsComponent } from "./pages/open-provider-action/contract-edit-options/contract-edit-options.component";
+import { ChangeContractsComponent } from "./pages/open-provider-action/change-contract/change-contract.component";
+import { CancellationRequestsComponent } from "./pages/cancellation-service/cancellation-service.component";
 
 export const routes: Routes = [
   {
@@ -148,6 +149,11 @@ export const routes: Routes = [
         title: "Customer Queries",
       },
       {
+        path: "cancellation-service/cancellation-service-request",
+        component: CancellationRequestsComponent,
+        title: "Cancellation Service",
+      },
+      {
         path: "bookings/change/:id/edit",
         component: BookingEditComponent,
         title: "Edit Booking",
@@ -218,8 +224,8 @@ export const routes: Routes = [
         title: "Ratenbetrag ändern",
       },
       {
-        path: "open-provider-action/contract-edit-options",
-        component: ContractEditOptionsComponent,
+        path: "open-provider-action/change-contract",
+        component: ChangeContractsComponent,
         title: "Optionen zur Vertragsbearbeitung",
       },
       {
