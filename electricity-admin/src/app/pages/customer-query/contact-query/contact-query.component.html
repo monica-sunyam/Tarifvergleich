@@ -1,1049 +1,722 @@
-<div
-  class="relative flex overflow-hidden rounded-2xl bg-white shadow dark:bg-gray-900"
->
+<div class="relative flex overflow-hidden rounded-2xl bg-white shadow dark:bg-gray-900">
   <!-- ───────────────────────── MAIN PANEL ───────────────────────── -->
-  <div
-    class="flex-1 min-w-0 p-6 transition-all duration-300"
-    [class.pr-4]="isSidebarOpen"
-  >
+  <div class="flex-1 min-w-0 p-6 transition-all duration-300" [class.pr-4]="isSidebarOpen">
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <div>
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
           Kontaktanfragen
           @if (!isLoading && totalCount > 0) {
-            <span
-              class="ml-2 text-sm font-normal text-gray-400 dark:text-gray-500"
-            >
-              {{ totalCount }} Einträge
-            </span>
+          <span class="ml-2 text-sm font-normal text-gray-400 dark:text-gray-500">
+            {{ totalCount }} Einträge
+          </span>
           }
         </h2>
       </div>
-      <button
-        (click)="fetchQueries()"
-        class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition cursor-pointer"
-      >
+      <button (click)="fetchQueries()"
+        class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition cursor-pointer">
         Neu laden
       </button>
     </div>
 
     <!-- Loading -->
     @if (isLoading) {
-      <div class="flex items-center gap-2 text-gray-500 text-sm py-8">
-        <div
-          class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"
-        ></div>
-        <span>Kontaktanfragen werden geladen...</span>
-      </div>
+    <div class="flex items-center gap-2 text-gray-500 text-sm py-8">
+      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
+      <span>Kontaktanfragen werden geladen...</span>
+    </div>
     }
 
     <!-- Table -->
     @if (!isLoading && !errorMessage && queries.length > 0) {
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left border-collapse">
-          <thead
-            class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-          >
-            <tr>
-              <th class="px-4 py-3 rounded-tl-lg">ID</th>
-              <th class="px-4 py-3">Name</th>
-              <th class="px-4 py-3">E-Mail</th>
-              <th class="px-4 py-3">Telefon</th>
-              <th class="px-4 py-3">Kategorie</th>
-              <th class="px-4 py-3">Status</th>
-              <th class="px-4 py-3">Erstellt am</th>
-              <th class="px-4 py-3">Details</th>
-              <th class="px-4 py-3 rounded-tr-lg">Aktion</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y dark:divide-gray-700">
-            @for (entry of queries; track entry.customerQueryContactId) {
-              <tr
-                class="hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
-                [class.bg-blue-50]="isSelected(entry)"
-                [class.dark:bg-blue-900\/20]="isSelected(entry)"
-                (click)="openSidebar(entry)"
-              >
-                <!-- ID -->
-                <td
-                  class="px-4 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs"
-                >
-                  #{{ entry.customerQueryContactId }}
-                </td>
-
-                <!-- Name -->
-                <td class="px-4 py-4">
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
-                      [class.bg-violet-100]="isLoggedIn(entry)"
-                      [class.text-violet-700]="isLoggedIn(entry)"
-                      [class.bg-gray-100]="!isLoggedIn(entry)"
-                      [class.text-gray-500]="!isLoggedIn(entry)"
-                    >
-                      {{ queryInitials(entry) }}
-                    </div>
-                    <div class="min-w-0">
-                      <div
-                        class="font-medium text-gray-900 dark:text-white truncate text-xs"
-                      >
-                        {{ queryFullName(entry) }}
-                      </div>
-                      <div class="text-xs text-gray-400">
-                        {{ entry.salutation || "—" }}
-                      </div>
-                    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-collapse">
+        <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+          <tr>
+            <th class="px-4 py-3 rounded-tl-lg">ID</th>
+            <th class="px-4 py-3">Name</th>
+            <th class="px-4 py-3">E-Mail</th>
+            <th class="px-4 py-3">Telefon</th>
+            <th class="px-4 py-3">Kategorie</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Erstellt am</th>
+            <th class="px-4 py-3">Details</th>
+            <th class="px-4 py-3 rounded-tr-lg">Aktion</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y dark:divide-gray-700">
+          @for (entry of queries; track entry.customerQueryContactId; let i = $index) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
+            [class.bg-blue-50]="isSelected(entry)" [class.dark:bg-blue-900\/20]="isSelected(entry)"
+            (click)="openSidebar(entry, i)">
+            <!-- ID -->
+            <td class="px-4 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">
+              #{{ i + 1 }}
+            </td>
+            <!-- Name -->
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-2">
+                <div class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                  [class.bg-violet-100]="isLoggedIn(entry)" [class.text-violet-700]="isLoggedIn(entry)"
+                  [class.bg-gray-100]="!isLoggedIn(entry)" [class.text-gray-500]="!isLoggedIn(entry)">
+                  {{ queryInitials(entry) }}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-medium text-gray-900 dark:text-white truncate text-xs">
+                    {{ queryFullName(entry) }}
                   </div>
-                </td>
+                  <div class="text-xs text-gray-400">
+                    {{ entry.salutation || "—" }}
+                  </div>
+                </div>
+              </div>
+            </td>
 
-                <!-- Email -->
-                <td class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400">
-                  {{ entry.email || "—" }}
-                </td>
+            <!-- Email -->
+            <td class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400">
+              {{ entry.email || "—" }}
+            </td>
 
-                <!-- Phone -->
-                <td class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400">
-                  {{ entry.contactNumber || "—" }}
-                </td>
+            <!-- Phone -->
+            <td class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400">
+              {{ entry.contactNumber || "—" }}
+            </td>
 
-                <!-- Category -->
-                <td class="px-4 py-4">
-                  <span
-                    class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                  >
-                    {{ entry.categoryName || "—" }}
-                  </span>
-                </td>
+            <!-- Category -->
+            <td class="px-4 py-4">
+              <span
+                class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                {{ entry.categoryName || "—" }}
+              </span>
+            </td>
+
+            <!-- Status -->
+            <td class="px-4 py-4">
+              @if (entry.isResolved) {
+              <span
+                class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                Gelöst
+              </span>
+              } @else {
+              <span
+                class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                Offen
+              </span>
+              }
+            </td>
+
+            <!-- Created On -->
+            <td class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
+              {{ formatDateTime(entry.createdOn) }}
+            </td>
+
+            <!-- Details chevron -->
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-1 text-brand-500 font-medium">
+                <span class="text-xs">Details</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200"
+                  [class.rotate-90]="isSelected(entry)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </td>
+
+            <!-- ACTION column -->
+            <td class="px-4 py-4" (click)="$event.stopPropagation()">
+              <div class="flex items-center gap-2">
+                <button (click)="openViewLinkedModal($event, entry, i)" title="Verknüpfte Kunden anzeigen"
+                  class="p-1.5 rounded-lg text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 dark:hover:text-brand-400 transition cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
+                  </svg>
+                </button>
+
+                <button (click)="openLinkModal($event, entry, i)"
+                  title="{{ entry.customer ? 'Kunde ändern' : 'Kunde verknüpfen' }}"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer bg-brand-50 text-brand-700 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-300 dark:hover:bg-brand-900/40">
+                  <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101
+                         m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                </button>
 
                 <!-- Status -->
-                <td class="px-4 py-4">
-                  @if (entry.isResolved) {
-                    <span
-                      class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                    >
-                      Gelöst
-                    </span>
-                  } @else {
-                    <span
-                      class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                    >
-                      Offen
-                    </span>
-                  }
-                </td>
+                @if (entry.isResolved) {
+                <span
+                  class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                  Gelöst
+                </span>
+                } @else {
+                <span
+                  class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                  Offen
+                </span>
+                }
 
-                <!-- Created On -->
-                <td
-                  class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap"
-                >
-                  {{ formatDateTime(entry.createdOn) }}
-                </td>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" [checked]="entry.isResolved"
+                    (change)="toggleQueryStatus(entry, $event)" />
 
-                <!-- Details chevron -->
-                <td class="px-4 py-4">
-                  <div
-                    class="flex items-center gap-1 text-brand-500 font-medium"
-                  >
-                    <span class="text-xs">Details</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4 transition-transform duration-200"
-                      [class.rotate-90]="isSelected(entry)"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </div>
-                </td>
-
-                <!-- ACTION column -->
-                <td class="px-4 py-4" (click)="$event.stopPropagation()">
-                  <div class="flex items-center gap-2">
-                    <button
-                      (click)="openViewLinkedModal($event, entry)"
-                      title="Verknüpfte Kunden anzeigen"
-                      class="p-1.5 rounded-lg text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 dark:hover:text-brand-400 transition cursor-pointer"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        ></path>
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        ></path>
-                      </svg>
-                    </button>
-
-                    <button
-                      (click)="openLinkModal($event, entry)"
-                      title="{{ entry.customer ? 'Kunde ändern' : 'Kunde verknüpfen' }}"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer bg-brand-50 text-brand-700 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-300 dark:hover:bg-brand-900/40"
-                    >
-                      <svg
-                        class="h-3 w-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101
-                         m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                        />
-                      </svg>
-                    </button>
-
-                    <!-- Status -->
-                      @if (entry.isResolved) {
-                        <span
-                          class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        >
-                          Gelöst
-                        </span>
-                      } @else {
-                        <span
-                          class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                        >
-                          Offen
-                        </span>
-                      }
-
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        class="sr-only peer"
-                        [checked]="entry.isResolved"
-                        (change)="toggleQueryStatus(entry, $event)"
-                      />
-
-                      <div
-                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full
                         peer dark:bg-gray-700 peer-checked:bg-green-500
                         after:content-[''] after:absolute after:top-[2px]
                         after:left-[2px] after:bg-white after:rounded-full
                         after:h-5 after:w-5 after:transition-all
-                        peer-checked:after:translate-x-full"
-                      ></div>
-                    </label>
+                        peer-checked:after:translate-x-full"></div>
+                </label>
 
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     }
 
     <!-- Error -->
     @if (!isLoading && errorMessage) {
-      <div class="text-center py-12">
-        <p class="text-red-500 font-medium">{{ errorMessage }}</p>
-      </div>
+    <div class="text-center py-12">
+      <p class="text-red-500 font-medium">{{ errorMessage }}</p>
+    </div>
     }
 
     <!-- Empty -->
     @if (!isLoading && !errorMessage && queries.length === 0) {
-      <div class="text-center py-12">
-        @if (searchTerm) {
-          <p class="text-gray-500 font-medium">
-            Keine Ergebnisse für diese Suche
-          </p>
-          <button
-            (click)="clearSearch()"
-            class="mt-2 text-sm text-brand-500 hover:underline"
-          >
-            Suche zurücksetzen
-          </button>
-        } @else {
-          <p class="text-gray-500 font-medium">
-            Keine Kontaktanfragen gefunden
-          </p>
-        }
-      </div>
+    <div class="text-center py-12">
+      @if (searchTerm) {
+      <p class="text-gray-500 font-medium">
+        Keine Ergebnisse für diese Suche
+      </p>
+      <button (click)="clearSearch()" class="mt-2 text-sm text-brand-500 hover:underline">
+        Suche zurücksetzen
+      </button>
+      } @else {
+      <p class="text-gray-500 font-medium">
+        Keine Kontaktanfragen gefunden
+      </p>
+      }
+    </div>
     }
 
     <!-- Pagination -->
     @if (!isLoading && !errorMessage && queries.length > 0) {
-      <div
-        class="flex items-center justify-between px-4 py-4 border-t border-gray-200 dark:border-gray-700 mt-4"
-      >
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-          Einträge
-          <span class="font-medium text-gray-900 dark:text-white"
-            >{{ pageRangeFrom }}–{{ pageRangeTo }}</span
-          >
-          von
-          <span class="font-medium text-gray-900 dark:text-white">{{
-            totalCount
+    <div class="flex items-center justify-between px-4 py-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
+        Einträge
+        <span class="font-medium text-gray-900 dark:text-white">{{ pageRangeFrom }}–{{ pageRangeTo }}</span>
+        von
+        <span class="font-medium text-gray-900 dark:text-white">{{
+          totalCount
           }}</span>
-          &nbsp;·&nbsp; Seite
-          <span class="font-medium text-gray-900 dark:text-white">{{
-            currentPage
+        &nbsp;·&nbsp; Seite
+        <span class="font-medium text-gray-900 dark:text-white">{{
+          currentPage
           }}</span>
-          von
-          <span class="font-medium text-gray-900 dark:text-white">{{
-            totalPages
+        von
+        <span class="font-medium text-gray-900 dark:text-white">{{
+          totalPages
           }}</span>
-        </div>
-        <div class="flex gap-2">
-          <button
-            (click)="prevPage()"
-            [disabled]="currentPage === 1 || isLoading"
-            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            Zurück
-          </button>
-          <button
-            (click)="nextPage()"
-            [disabled]="!hasMoreData || currentPage >= totalPages || isLoading"
-            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            Weiter
-          </button>
-        </div>
       </div>
+      <div class="flex gap-2">
+        <button (click)="prevPage()" [disabled]="currentPage === 1 || isLoading"
+          class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
+          Zurück
+        </button>
+        <button (click)="nextPage()" [disabled]="!hasMoreData || currentPage >= totalPages || isLoading"
+          class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
+          Weiter
+        </button>
+      </div>
+    </div>
     }
   </div>
   <!-- ───────────────────────── END MAIN PANEL ───────────────────────── -->
 
   <!-- ───────────────────────── SIDEBAR ───────────────────────── -->
   @if (isSidebarOpen && selectedEntry) {
-    <aside
-      class="w-80 shrink-0 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col overflow-hidden"
-      style="animation: slideIn 0.2s ease"
-    >
-      <div
-        class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700"
-      >
-        <span class="text-sm font-semibold text-gray-800 dark:text-white"
-          >Anfrage-Details</span
-        >
-        <button
-          (click)="closeSidebar()"
-          class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-400 hover:text-gray-600"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </div>
+  <aside
+    class="w-80 shrink-0 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col overflow-hidden"
+    style="animation: slideIn 0.2s ease">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+      <span class="text-sm font-semibold text-gray-800 dark:text-white">Anfrage-Details</span>
+      <button (click)="closeSidebar()"
+        class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
 
-      <div class="flex-1 overflow-y-auto p-5 space-y-6">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Anfrage #{{ selectedEntry.customerQueryContactId }}
-          </span>
-          @if (selectedEntry.isResolved) {
-            <span
-              class="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"
-              >✓ Gelöst</span
-            >
-          } @else {
-            <span
-              class="px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700"
-              >● Offen</span
-            >
-          }
-        </div>
-
-        <div>
-          <p
-            class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3"
-          >
-            Kontaktperson
-          </p>
-          <div class="flex items-center gap-3 mb-3">
-            <div
-              class="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-sm font-semibold text-violet-700 dark:text-violet-300 shrink-0"
-            >
-              {{ queryInitials(selectedEntry) }}
-            </div>
-            <div class="min-w-0">
-              <p class="font-semibold text-gray-900 dark:text-white truncate">
-                {{ queryFullName(selectedEntry) }}
-              </p>
-              <p class="text-xs text-gray-400">
-                {{ selectedEntry.salutation }}
-              </p>
-            </div>
-          </div>
-          <div
-            class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
-          >
-            <div class="flex justify-between px-4 py-2.5">
-              <span class="text-xs text-gray-500">E-Mail</span>
-              <span
-                class="text-xs font-medium text-gray-800 dark:text-gray-200 truncate max-w-[160px]"
-                >{{ selectedEntry.email || "—" }}</span
-              >
-            </div>
-            <div class="flex justify-between px-4 py-2.5">
-              <span class="text-xs text-gray-500">Telefon</span>
-              <span
-                class="text-xs font-medium text-gray-800 dark:text-gray-200"
-                >{{ selectedEntry.contactNumber || "—" }}</span
-              >
-            </div>
-            <div class="flex justify-between px-4 py-2.5">
-              <span class="text-xs text-gray-500">Kategorie</span>
-              <span
-                class="text-xs font-medium text-gray-800 dark:text-gray-200"
-                >{{ selectedEntry.categoryName || "—" }}</span
-              >
-            </div>
-            <div class="flex justify-between px-4 py-2.5">
-              <span class="text-xs text-gray-500">Erstellt am</span>
-              <span
-                class="text-xs font-medium text-gray-800 dark:text-gray-200"
-                >{{ formatDateTime(selectedEntry.createdOn) }}</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <p
-            class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3"
-          >
-            Anfrage
-          </p>
-          <div class="rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3">
-            <p class="text-xs text-gray-800 dark:text-gray-200 leading-relaxed">
-              {{ selectedEntry.inquiry || "—" }}
-            </p>
-          </div>
-        </div>
-
-        @if (isLoggedIn(selectedEntry)) {
-          <div>
-            <p
-              class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3"
-            >
-              Verknüpfte Kunden
-            </p>
-            @if (
-              selectedEntry.customers && selectedEntry.customers.length > 0
-            ) {
-              <div class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                @for (cust of selectedEntry.customers; track cust.id) {
-                  <div>
-                    <div class="flex items-center gap-3 mb-3">
-                      <div
-                        class="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs font-semibold text-blue-700 shrink-0"
-                      >
-                        {{
-                          (cust.firstName || "").charAt(0) +
-                            (cust.lastName || "").charAt(0) | uppercase
-                        }}
-                      </div>
-                      <div class="min-w-0">
-                        <p
-                          class="font-semibold text-gray-900 dark:text-white text-sm truncate"
-                        >
-                          {{ cust.firstName }} {{ cust.lastName }}
-                        </p>
-                        <p class="text-xs text-gray-400 truncate">
-                          {{ cust.email }}
-                        </p>
-                      </div>
-                    </div>
-                    <div
-                      class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 mb-3"
-                    >
-                      <div class="flex justify-between px-4 py-2.5">
-                        <span class="text-xs text-gray-500">Kunden-ID</span>
-                        <span
-                          class="text-xs font-mono font-medium text-gray-800 dark:text-gray-200"
-                          >#{{ cust.id }}</span
-                        >
-                      </div>
-                      <div class="flex justify-between px-4 py-2.5">
-                        <span class="text-xs text-gray-500">Kundentyp</span>
-                        <span
-                          class="text-xs font-medium text-gray-800 dark:text-gray-200 capitalize"
-                          >{{ cust.userType || "—" }}</span
-                        >
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            } @else if (selectedEntry.customer) {
-              <div>
-                <div class="flex items-center gap-3 mb-3">
-                  <div
-                    class="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs font-semibold text-blue-700 shrink-0"
-                  >
-                    {{
-                      (selectedEntry.customer.firstName || "").charAt(0) +
-                        (selectedEntry.customer.lastName || "").charAt(0)
-                        | uppercase
-                    }}
-                  </div>
-                  <div class="min-w-0">
-                    <p
-                      class="font-semibold text-gray-900 dark:text-white text-sm truncate"
-                    >
-                      {{ selectedEntry.customer.firstName }}
-                      {{ selectedEntry.customer.lastName }}
-                    </p>
-                    <p class="text-xs text-gray-400 truncate">
-                      {{ selectedEntry.customer.email }}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
-                >
-                  <div class="flex justify-between px-4 py-2.5">
-                    <span class="text-xs text-gray-500">Kunden-ID</span>
-                    <span
-                      class="text-xs font-mono font-medium text-gray-800 dark:text-gray-200"
-                      >#{{ selectedEntry.customer.id }}</span
-                    >
-                  </div>
-                  <div class="flex justify-between px-4 py-2.5">
-                    <span class="text-xs text-gray-500">Kundentyp</span>
-                    <span
-                      class="text-xs font-medium text-gray-800 dark:text-gray-200 capitalize"
-                      >{{ selectedEntry.customer.userType || "—" }}</span
-                    >
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
+    <div class="flex-1 overflow-y-auto p-5 space-y-6">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+          Anfrage #{{ selectedIndex !== null ? selectedIndex + 1 : '—' }}
+        </span>
+        @if (selectedEntry.isResolved) {
+        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">✓ Gelöst</span>
+        } @else {
+        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">● Offen</span>
         }
       </div>
-    </aside>
+
+      <div>
+        <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3">
+          Kontaktperson
+        </p>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-sm font-semibold text-violet-700 dark:text-violet-300 shrink-0">
+            {{ queryInitials(selectedEntry) }}
+          </div>
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-900 dark:text-white truncate">
+              {{ queryFullName(selectedEntry) }}
+            </p>
+            <p class="text-xs text-gray-400">
+              {{ selectedEntry.salutation }}
+            </p>
+          </div>
+        </div>
+        <div class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500">E-Mail</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200 truncate max-w-[160px]">{{
+              selectedEntry.email || "—" }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500">Telefon</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ selectedEntry.contactNumber || "—"
+              }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500">Kategorie</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ selectedEntry.categoryName || "—"
+              }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500">Erstellt am</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{
+              formatDateTime(selectedEntry.createdOn) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3">
+          Anfrage
+        </p>
+        <div class="rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3">
+          <p class="text-xs text-gray-800 dark:text-gray-200 leading-relaxed">
+            {{ selectedEntry.inquiry || "—" }}
+          </p>
+        </div>
+      </div>
+
+      @if (isLoggedIn(selectedEntry)) {
+      <div>
+        <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3">
+          Verknüpfte Kunden
+        </p>
+        @if (
+        selectedEntry.customers && selectedEntry.customers.length > 0
+        ) {
+        <div class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+          @for (cust of selectedEntry.customers; track cust.id) {
+          <div>
+            <div class="flex items-center gap-3 mb-3">
+              <div
+                class="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs font-semibold text-blue-700 shrink-0">
+                {{
+                (cust.firstName || "").charAt(0) +
+                (cust.lastName || "").charAt(0) | uppercase
+                }}
+              </div>
+              <div class="min-w-0">
+                <p class="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                  {{ cust.firstName }} {{ cust.lastName }}
+                </p>
+                <p class="text-xs text-gray-400 truncate">
+                  {{ cust.email }}
+                </p>
+              </div>
+            </div>
+            <div class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 mb-3">
+              <div class="flex justify-between px-4 py-2.5">
+                <span class="text-xs text-gray-500">Kunden-ID</span>
+                <span class="text-xs font-mono font-medium text-gray-800 dark:text-gray-200">#{{ cust.id }}</span>
+              </div>
+              <div class="flex justify-between px-4 py-2.5">
+                <span class="text-xs text-gray-500">Kundentyp</span>
+                <span class="text-xs font-medium text-gray-800 dark:text-gray-200 capitalize">{{ cust.userType || "—"
+                  }}</span>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+        } @else if (selectedEntry.customer) {
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              class="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs font-semibold text-blue-700 shrink-0">
+              {{
+              (selectedEntry.customer.firstName || "").charAt(0) +
+              (selectedEntry.customer.lastName || "").charAt(0)
+              | uppercase
+              }}
+            </div>
+            <div class="min-w-0">
+              <p class="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                {{ selectedEntry.customer.firstName }}
+                {{ selectedEntry.customer.lastName }}
+              </p>
+              <p class="text-xs text-gray-400 truncate">
+                {{ selectedEntry.customer.email }}
+              </p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <div class="flex justify-between px-4 py-2.5">
+              <span class="text-xs text-gray-500">Kunden-ID</span>
+              <span class="text-xs font-mono font-medium text-gray-800 dark:text-gray-200">#{{ selectedEntry.customer.id
+                }}</span>
+            </div>
+            <div class="flex justify-between px-4 py-2.5">
+              <span class="text-xs text-gray-500">Kundentyp</span>
+              <span class="text-xs font-medium text-gray-800 dark:text-gray-200 capitalize">{{
+                selectedEntry.customer.userType || "—" }}</span>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </aside>
   }
   <!-- ───────────────────────── END SIDEBAR ───────────────────────── -->
 </div>
 
 <!-- ═══════════════════════ VIEW LINKED USERS MODAL ═══════════════════════ -->
 @if (isViewLinkedModalOpen && viewLinkedEntry) {
-  <div
-    class="fixed inset-0 z-99999 flex items-center justify-center p-4"
-    style="background: rgba(0, 0, 0, 0.45); animation: fadeIn 0.15s ease"
-    (click)="closeViewLinkedModal()"
-  >
-    <div
-      class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-      style="animation: scaleIn 0.2s ease"
-      (click)="$event.stopPropagation()"
-    >
-      <!-- Modal header -->
+<div class="fixed inset-0 z-99999 flex items-center justify-center p-4"
+  style="background: rgba(0, 0, 0, 0.45); animation: fadeIn 0.15s ease" (click)="closeViewLinkedModal()">
+  <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+    style="animation: scaleIn 0.2s ease" (click)="$event.stopPropagation()">
+    <!-- Modal header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+          Verknüpfte Kunden
+        </h3>
+        <p class="text-xs text-gray-400 mt-0.5">
+          Anfrage #{{ selectedIndex !== null ? selectedIndex + 1 : '—' }}
+        </p>
+      </div>
+      <button (click)="closeViewLinkedModal()"
+        class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition cursor-pointer">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+      @if (
+      viewLinkedEntry.customers && viewLinkedEntry.customers.length > 0
+      ) {
+      @for (cust of viewLinkedEntry.customers; track cust.id) {
       <div
-        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700"
-      >
-        <div>
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white">
-            Verknüpfte Kunden
-          </h3>
-          <p class="text-xs text-gray-400 mt-0.5">
-            Anfrage #{{ viewLinkedEntry.customerQueryContactId }}
+        class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div
+          class="h-10 w-10 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-sm font-semibold text-brand-700 dark:text-brand-300 shrink-0">
+          {{
+          (cust.firstName || "").charAt(0) +
+          (cust.lastName || "").charAt(0) | uppercase
+          }}
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+            {{ cust.firstName }} {{ cust.lastName }}
+          </p>
+          <p class="text-xs text-gray-500 truncate">{{ cust.email }}</p>
+          <p class="text-xs text-gray-400 mt-0.5 capitalize">
+            Typ: {{ cust.userType || "Kunde" }}
           </p>
         </div>
-        <button
-          (click)="closeViewLinkedModal()"
-          class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition cursor-pointer"
-        >
-          <svg
-            class="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
       </div>
-
-      <!-- Modal body -->
-      <div class="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
-        @if (
-          viewLinkedEntry.customers && viewLinkedEntry.customers.length > 0
-        ) {
-          @for (cust of viewLinkedEntry.customers; track cust.id) {
-            <div
-              class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
-            >
-              <div
-                class="h-10 w-10 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-sm font-semibold text-brand-700 dark:text-brand-300 shrink-0"
-              >
-                {{
-                  (cust.firstName || "").charAt(0) +
-                    (cust.lastName || "").charAt(0) | uppercase
-                }}
-              </div>
-              <div class="min-w-0">
-                <p
-                  class="text-sm font-semibold text-gray-900 dark:text-white truncate"
-                >
-                  {{ cust.firstName }} {{ cust.lastName }}
-                </p>
-                <p class="text-xs text-gray-500 truncate">{{ cust.email }}</p>
-                <p class="text-xs text-gray-400 mt-0.5 capitalize">
-                  Typ: {{ cust.userType || "Kunde" }}
-                </p>
-              </div>
-            </div>
-          }
-        } @else if (viewLinkedEntry.customer) {
-          <div
-            class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
-          >
-            <div
-              class="h-10 w-10 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-sm font-semibold text-brand-700 dark:text-brand-300 shrink-0"
-            >
-              {{
-                (viewLinkedEntry.customer.firstName || "").charAt(0) +
-                  (viewLinkedEntry.customer.lastName || "").charAt(0)
-                  | uppercase
-              }}
-            </div>
-            <div class="min-w-0">
-              <p
-                class="text-sm font-semibold text-gray-900 dark:text-white truncate"
-              >
-                {{ viewLinkedEntry.customer.firstName }}
-                {{ viewLinkedEntry.customer.lastName }}
-              </p>
-              <p class="text-xs text-gray-500 truncate">
-                {{ viewLinkedEntry.customer.email }}
-              </p>
-              <p class="text-xs text-gray-400 mt-0.5 capitalize">
-                Typ: {{ viewLinkedEntry.customer.userType || "Kunde" }}
-              </p>
-            </div>
-          </div>
-        } @else {
-          <div class="text-center py-6">
-            <p class="text-sm text-gray-500">
-              Es ist kein Benutzer mit dieser Anfrage verknüpft.
-            </p>
-          </div>
-        }
-      </div>
-
-      <!-- Modal footer -->
+      }
+      } @else if (viewLinkedEntry.customer) {
       <div
-        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-right"
-      >
-        <button
-          (click)="closeViewLinkedModal()"
-          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
-        >
-          Schließen
-        </button>
+        class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div
+          class="h-10 w-10 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-sm font-semibold text-brand-700 dark:text-brand-300 shrink-0">
+          {{
+          (viewLinkedEntry.customer.firstName || "").charAt(0) +
+          (viewLinkedEntry.customer.lastName || "").charAt(0)
+          | uppercase
+          }}
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+            {{ viewLinkedEntry.customer.firstName }}
+            {{ viewLinkedEntry.customer.lastName }}
+          </p>
+          <p class="text-xs text-gray-500 truncate">
+            {{ viewLinkedEntry.customer.email }}
+          </p>
+          <p class="text-xs text-gray-400 mt-0.5 capitalize">
+            Typ: {{ viewLinkedEntry.customer.userType || "Kunde" }}
+          </p>
+        </div>
       </div>
+      } @else {
+      <div class="text-center py-6">
+        <p class="text-sm text-gray-500">
+          Es ist kein Benutzer mit dieser Anfrage verknüpft.
+        </p>
+      </div>
+      }
+    </div>
+
+    <!-- Modal footer -->
+    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-right">
+      <button (click)="closeViewLinkedModal()"
+        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
+        Schließen
+      </button>
     </div>
   </div>
+</div>
 }
 
 <!-- ═══════════════════════ LINK CUSTOMER MODAL ═══════════════════════ -->
 @if (isModalOpen && modalEntry) {
-  <div
-    class="fixed inset-0 z-99999 flex items-center justify-center p-4"
-    style="background: rgba(0, 0, 0, 0.45); animation: fadeIn 0.15s ease"
-    (click)="closeLinkModal()"
-  >
-    <div
-      class="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-      style="animation: scaleIn 0.2s ease"
-      (click)="$event.stopPropagation()"
-    >
-      <!-- Modal header -->
-      <div
-        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700"
-      >
-        <div>
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white">
-            Kunde verknüpfen
-          </h3>
-          <p class="text-xs text-gray-400 mt-0.5">
-            Anfrage #{{ modalEntry.customerQueryContactId }} ·
-            {{ queryFullName(modalEntry) }}
-          </p>
-        </div>
-        <button
-          (click)="closeLinkModal()"
-          class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition cursor-pointer"
-        >
-          <svg
-            class="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+<div class="fixed inset-0 z-99999 flex items-center justify-center p-4"
+  style="background: rgba(0, 0, 0, 0.45); animation: fadeIn 0.15s ease" (click)="closeLinkModal()">
+  <div class="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+    style="animation: scaleIn 0.2s ease" (click)="$event.stopPropagation()">
+    <!-- Modal header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+          Kunde verknüpfen
+        </h3>
+        <p class="text-xs text-gray-400 mt-0.5">
+          Anfrage #{{ selectedIndex !== null ? selectedIndex + 1 : '—' }} ·
+          {{ queryFullName(modalEntry) }}
+        </p>
       </div>
+      <button (click)="closeLinkModal()"
+        class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition cursor-pointer">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
 
-      <!-- Modal body -->
-      <div class="p-6 space-y-4">
-        <!-- ── Multi-select search box ── -->
-        <div>
-          <label
-            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Kunden suchen &amp; auswählen
-          </label>
+    <!-- Modal body -->
+    <div class="p-6 space-y-4">
+      <!-- ── Multi-select search box ── -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Kunden suchen &amp; auswählen
+        </label>
 
-          <!-- Selected tags row -->
-          <div
-            class="min-h-[42px] flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus-within:ring-2 focus-within:ring-brand-400 transition cursor-text"
-            (click)="focusSearch()"
-          >
-            <!-- Tag for each selected customer -->
-            @for (c of selectedCustomers; track c.id) {
-              <span
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-brand-100 dark:bg-brand-900/40 text-xs font-medium text-brand-700 dark:text-brand-300"
-                (click)="$event.stopPropagation()"
-              >
-                {{ c.firstName }} {{ c.lastName }}
-                <button
-                  type="button"
-                  (click)="removeCustomer(c.id); $event.stopPropagation()"
-                  class="ml-0.5 hover:text-brand-900 dark:hover:text-brand-100 cursor-pointer"
-                >
-                  <svg
-                    class="h-3 w-3"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2.5"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </span>
-            }
+        <!-- Selected tags row -->
+        <div
+          class="min-h-[42px] flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus-within:ring-2 focus-within:ring-brand-400 transition cursor-text"
+          (click)="focusSearch()">
+          <!-- Tag for each selected customer -->
+          @for (c of selectedCustomers; track c.id) {
+          <span
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-brand-100 dark:bg-brand-900/40 text-xs font-medium text-brand-700 dark:text-brand-300"
+            (click)="$event.stopPropagation()">
+            {{ c.firstName }} {{ c.lastName }}
+            <button type="button" (click)="removeCustomer(c.id); $event.stopPropagation()"
+              class="ml-0.5 hover:text-brand-900 dark:hover:text-brand-100 cursor-pointer">
+              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </span>
+          }
 
-            <!-- Search input -->
-            <input
-              #searchInput
-              type="text"
-              [ngModel]="customerSearchTerm"
-              (ngModelChange)="onCustomerSearchInput($event)"
-              (focus)="onCustomerSearchFocus()"
-              (blur)="onSearchBlur()"
-              (click)="isDropdownOpen = true; $event.stopPropagation()"
-              placeholder="{{
+          <!-- Search input -->
+          <input #searchInput type="text" [ngModel]="customerSearchTerm" (ngModelChange)="onCustomerSearchInput($event)"
+            (focus)="onCustomerSearchFocus()" (blur)="onSearchBlur()"
+            (click)="isDropdownOpen = true; $event.stopPropagation()" placeholder="{{
                 selectedCustomers.length === 0
                   ? 'Name oder E-Mail eingeben…'
                   : ''
               }}"
-              class="flex-1 min-w-[100px] bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none border-none"
-            />
+            class="flex-1 min-w-[100px] bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none border-none" />
 
-            <!-- Dropdown Caret -->
-            <div class="flex items-center gap-1 ml-auto shrink-0">
-              @if (customerSearchTerm || selectedCustomers.length > 0) {
-                <button
-                  type="button"
-                  (click)="clearCustomerSearch(); $event.stopPropagation()"
-                  class="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
-                  title="Zurücksetzen"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              }
-              <button
-                type="button"
-                (click)="toggleCustomerSearchDropdown($event)"
-                class="text-gray-400 hover:text-gray-600 p-1 cursor-pointer transition-transform duration-200"
-                [class.rotate-180]="isDropdownOpen"
-              >
-                <svg
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-            </div>
+          <!-- Dropdown Caret -->
+          <div class="flex items-center gap-1 ml-auto shrink-0">
+            @if (customerSearchTerm || selectedCustomers.length > 0) {
+            <button type="button" (click)="clearCustomerSearch(); $event.stopPropagation()"
+              class="text-gray-400 hover:text-gray-600 p-1 cursor-pointer" title="Zurücksetzen">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            }
+            <button type="button" (click)="toggleCustomerSearchDropdown($event)"
+              class="text-gray-400 hover:text-gray-600 p-1 cursor-pointer transition-transform duration-200"
+              [class.rotate-180]="isDropdownOpen">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
-
-          <!-- Dropdown results -->
-          @if (
-            isDropdownOpen &&
-            (customerSearchResults.length > 0 || isSearchingCustomers)
-          ) {
-            <div
-              class="mt-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg overflow-hidden max-h-52 overflow-y-auto z-10 relative"
-            >
-              @if (isSearchingCustomers) {
-                <div
-                  class="flex items-center gap-2 px-4 py-3 text-xs text-gray-400"
-                >
-                  <div
-                    class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-brand-500"
-                  ></div>
-                  <span>Suche läuft…</span>
-                </div>
-              }
-
-              @for (customer of customerSearchResults; track customer.id) {
-                <!-- Skip already-selected -->
-                @if (!isCustomerSelected(customer.id)) {
-                  <button
-                    type="button"
-                    (mousedown)="$event.preventDefault()"
-                    (click)="addCustomer(customer)"
-                    class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-left cursor-pointer"
-                  >
-                    <div
-                      class="h-7 w-7 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-xs font-semibold text-violet-700 dark:text-violet-300 shrink-0"
-                    >
-                      {{
-                        (customer.firstName || "").charAt(0) +
-                          (customer.lastName || "").charAt(0) | uppercase
-                      }}
-                    </div>
-                    <div class="min-w-0">
-                      <p
-                        class="text-xs font-medium text-gray-900 dark:text-white truncate"
-                      >
-                        {{ customer.firstName }} {{ customer.lastName }}
-                      </p>
-                      <p class="text-xs text-gray-400 truncate">
-                        {{ customer.email }}
-                      </p>
-                    </div>
-                    <span
-                      class="ml-auto text-xs text-gray-400 shrink-0 capitalize"
-                      >{{ customer.userType }}</span
-                    >
-                  </button>
-                }
-              }
-
-              @if (
-                !isSearchingCustomers && customerSearchResults.length === 0
-              ) {
-                <div class="px-4 py-3 text-sm text-gray-500 text-center">
-                  Keine Kunden gefunden
-                </div>
-              }
-            </div>
-          }
         </div>
 
-        <!-- Selected customers summary -->
-        @if (selectedCustomers.length > 0) {
-          <div
-            class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
-          >
-            @for (c of selectedCustomers; track c.id) {
-              <div class="flex items-center gap-3 px-4 py-2.5">
-                <div
-                  class="h-7 w-7 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-xs font-semibold text-brand-700 dark:text-brand-300 shrink-0"
-                >
-                  {{
-                    (c.firstName || "").charAt(0) + (c.lastName || "").charAt(0)
-                      | uppercase
-                  }}
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p
-                    class="text-xs font-semibold text-gray-900 dark:text-white truncate"
-                  >
-                    {{ c.firstName }} {{ c.lastName }}
-                  </p>
-                  <p class="text-xs text-gray-400 truncate">{{ c.email }}</p>
-                </div>
-                <span class="text-xs text-gray-400 capitalize shrink-0">{{
-                  c.userType
-                }}</span>
-                <button
-                  type="button"
-                  (click)="removeCustomer(c.id)"
-                  class="ml-1 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition cursor-pointer"
-                >
-                  <svg
-                    class="h-3.5 w-3.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            }
+        <!-- Dropdown results -->
+        @if (
+        isDropdownOpen &&
+        (customerSearchResults.length > 0 || isSearchingCustomers)
+        ) {
+        <div
+          class="mt-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg overflow-hidden max-h-52 overflow-y-auto z-10 relative">
+          @if (isSearchingCustomers) {
+          <div class="flex items-center gap-2 px-4 py-3 text-xs text-gray-400">
+            <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-brand-500"></div>
+            <span>Suche läuft…</span>
           </div>
-        }
+          }
 
-        <!-- Success / Error messages -->
-        @if (linkSuccessMessage) {
-          <div
-            class="flex items-center gap-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3"
-          >
-            <svg
-              class="h-4 w-4 text-green-600 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <p class="text-xs text-green-700 dark:text-green-300 font-medium">
-              {{ linkSuccessMessage }}
-            </p>
+          @for (customer of customerSearchResults; track customer.id) {
+          <!-- Skip already-selected -->
+          @if (!isCustomerSelected(customer.id)) {
+          <button type="button" (mousedown)="$event.preventDefault()" (click)="addCustomer(customer)"
+            class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-left cursor-pointer">
+            <div
+              class="h-7 w-7 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-xs font-semibold text-violet-700 dark:text-violet-300 shrink-0">
+              {{
+              (customer.firstName || "").charAt(0) +
+              (customer.lastName || "").charAt(0) | uppercase
+              }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs font-medium text-gray-900 dark:text-white truncate">
+                {{ customer.firstName }} {{ customer.lastName }}
+              </p>
+              <p class="text-xs text-gray-400 truncate">
+                {{ customer.email }}
+              </p>
+            </div>
+            <span class="ml-auto text-xs text-gray-400 shrink-0 capitalize">{{ customer.userType }}</span>
+          </button>
+          }
+          }
+
+          @if (
+          !isSearchingCustomers && customerSearchResults.length === 0
+          ) {
+          <div class="px-4 py-3 text-sm text-gray-500 text-center">
+            Keine Kunden gefunden
           </div>
-        }
-        @if (linkErrorMessage) {
-          <div
-            class="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3"
-          >
-            <svg
-              class="h-4 w-4 text-red-500 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-            <p class="text-xs text-red-600 dark:text-red-400 font-medium">
-              {{ linkErrorMessage }}
-            </p>
-          </div>
+          }
+        </div>
         }
       </div>
 
-      <!-- Modal footer -->
-      <div
-        class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
-      >
-        <span class="text-xs text-gray-400">
-          {{ selectedCustomers.length }} Kunde{{
-            selectedCustomers.length !== 1 ? "n" : ""
-          }}
-          ausgewählt
-        </span>
-        <div class="flex gap-3">
-          <button
-            (click)="closeLinkModal()"
-            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
-          >
-            Abbrechen
-          </button>
-          <button
-            (click)="linkCustomers()"
-            [disabled]="selectedCustomers.length === 0 || isLinking"
-            class="px-4 py-2 text-sm font-semibold text-white bg-brand-500 rounded-lg hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 cursor-pointer"
-          >
-            @if (isLinking) {
-              <div
-                class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"
-              ></div>
-              <span>Wird verknüpft…</span>
-            } @else {
-              <svg
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101
-                 m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                />
-              </svg>
-              <span>Verknüpfen</span>
-            }
+      <!-- Selected customers summary -->
+      @if (selectedCustomers.length > 0) {
+      <div class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        @for (c of selectedCustomers; track c.id) {
+        <div class="flex items-center gap-3 px-4 py-2.5">
+          <div
+            class="h-7 w-7 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-xs font-semibold text-brand-700 dark:text-brand-300 shrink-0">
+            {{
+            (c.firstName || "").charAt(0) + (c.lastName || "").charAt(0)
+            | uppercase
+            }}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-semibold text-gray-900 dark:text-white truncate">
+              {{ c.firstName }} {{ c.lastName }}
+            </p>
+            <p class="text-xs text-gray-400 truncate">{{ c.email }}</p>
+          </div>
+          <span class="text-xs text-gray-400 capitalize shrink-0">{{
+            c.userType
+            }}</span>
+          <button type="button" (click)="removeCustomer(c.id)"
+            class="ml-1 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition cursor-pointer">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
+        }
+      </div>
+      }
+
+      <!-- Success / Error messages -->
+      @if (linkSuccessMessage) {
+      <div
+        class="flex items-center gap-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3">
+        <svg class="h-4 w-4 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <p class="text-xs text-green-700 dark:text-green-300 font-medium">
+          {{ linkSuccessMessage }}
+        </p>
+      </div>
+      }
+      @if (linkErrorMessage) {
+      <div
+        class="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3">
+        <svg class="h-4 w-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <p class="text-xs text-red-600 dark:text-red-400 font-medium">
+          {{ linkErrorMessage }}
+        </p>
+      </div>
+      }
+    </div>
+
+    <!-- Modal footer -->
+    <div
+      class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+      <span class="text-xs text-gray-400">
+        {{ selectedCustomers.length }} Kunde{{
+        selectedCustomers.length !== 1 ? "n" : ""
+        }}
+        ausgewählt
+      </span>
+      <div class="flex gap-3">
+        <button (click)="closeLinkModal()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
+          Abbrechen
+        </button>
+        <button (click)="linkCustomers()" [disabled]="selectedCustomers.length === 0 || isLinking"
+          class="px-4 py-2 text-sm font-semibold text-white bg-brand-500 rounded-lg hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 cursor-pointer">
+          @if (isLinking) {
+          <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+          <span>Wird verknüpft…</span>
+          } @else {
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101
+                 m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <span>Verknüpfen</span>
+          }
+        </button>
       </div>
     </div>
   </div>
+</div>
 }
 <!-- ═══════════════════════ END MODAL ═══════════════════════ -->
 
@@ -1053,24 +726,29 @@
       opacity: 0;
       transform: translateX(1rem);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
     }
   }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
   }
+
   @keyframes scaleIn {
     from {
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);

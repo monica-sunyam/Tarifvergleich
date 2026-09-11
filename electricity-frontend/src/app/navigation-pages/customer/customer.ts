@@ -241,6 +241,15 @@ export class Customer {
     this.cdr.detectChanges();
   }
 
+  startMoveReport(item?: any) {
+    this.currentStep = 10;
+    this.loadAvailableDays();
+    if (item) {
+      this.selectedMeter = item;
+    }
+    this.cdr.detectChanges();
+  }
+
   messageEnergySupplier(item?: any) {
     this.nextStep(6);
 
@@ -839,8 +848,20 @@ export class Customer {
   meterReadingCategory: number | null = null;
   meterReadingDate: string = '';
   meterReadingValue: string = '';
+  meterReadingConfirmed: boolean = false;
   submittedReportMeterReading: boolean = false;
+  photoUploadConfirmed: boolean = false;
 
+  triggerPhotoUpload(fileInput: HTMLInputElement) {
+    this.fieldErrors = {};
+
+    if (!this.photoUploadConfirmed) {
+      this.fieldErrors['photoUploadConfirmed'] = 'Bitte bestätigen Sie die Übermittlung, bevor Sie Fotos hochladen';
+      return;
+    }
+
+    fileInput.click();
+  }
   validateMeterReadingForm(): boolean {
     this.fieldErrors = {};
     let isValid = true;
@@ -868,6 +889,12 @@ export class Customer {
       isValid = false;
     } else if (Number(meterValue) <= 0) {
       this.fieldErrors['meterReadingValue'] = 'Der Zählerstand muss größer als 0 sein';
+      isValid = false;
+    }
+
+      // Confirmation checkbox
+    if (!this.meterReadingConfirmed) {
+      this.fieldErrors['meterReadingConfirmed'] = 'Bitte bestätigen Sie die Übermittlung, bevor Sie fortfahren';
       isValid = false;
     }
 
@@ -983,6 +1010,7 @@ export class Customer {
 
         if (res) {
           this.submittedReportMeterReading = true;
+          this.resetMeterReadingForm();
         }
 
         this.cdr.detectChanges();
@@ -993,7 +1021,17 @@ export class Customer {
       },
     });
   }
-
+  
+  resetMeterReadingForm() {
+    this.meterReadingCategory = null;
+    this.meterReadingDate = '';
+    this.meterReadingValue = '';
+    this.meterReadingConfirmed = false;
+    this.photoUploadConfirmed = false;
+    this.selectedFiles = [];
+    this.replaceIndex = null;
+    this.fieldErrors = {};
+  }
   /*--- Request Invoice ---*/
   invoiceCategory: number | null = null;
   invoiceMessage: string = '';
@@ -2481,6 +2519,71 @@ export class Customer {
     }
 
     return '';
+  }
+
+  moveData = {
+    newAddress: { street: '', houseNumber: '', zip: '', city: '' },
+    effectiveDate: '',
+    newMeterNumber: '',
+    additionalInfo: ''
+  };
+
+  moveFieldErrors: { [key: string]: string } = {};
+
+  showMoveCityDropdown = false;
+  showMoveStreetDropdown = false;
+  moveFilteredCityOptions: any[] = [];
+  moveFilteredStreetOptions: any[] = [];
+  isMoveStreetLoading = false;
+
+  onMoveCityInput(event: any) {
+    const value = event.target.value;
+    this.moveData.newAddress.city = value;
+    // filter/search city options into this.moveFilteredCityOptions
+  }
+
+  selectMoveCity(c: any) {
+    this.moveData.newAddress.city = c.city;
+    this.showMoveCityDropdown = false;
+    // clear street since city changed
+    this.moveData.newAddress.street = '';
+  }
+
+  onMoveStreetInput(event: any) {
+    const value = event.target.value;
+    this.moveData.newAddress.street = value;
+    // filter/search street options (scoped to selected city) into this.moveFilteredStreetOptions
+  }
+
+  selectMoveStreet(s: any) {
+    this.moveData.newAddress.street = s.street;
+    this.showMoveStreetDropdown = false;
+  }
+
+  movePhoneNumber: string = '';
+  selectedMoveDay: any = null;
+  selectedMoveTimeSlot: string = '';
+  moveScheduleDescription: string = '';
+  moveScheduleSuccessMessage: string = '';
+  moveScheduleErrorMessage: string = '';
+  isSubmittingMoveRequest = false;
+  submittedMoveRequest = false;
+
+  selectMoveDay(day: any) {
+    this.selectedMoveDay = day;
+  }
+
+  selectMoveTimeSlot(value: string) {
+    this.selectedMoveTimeSlot = value;
+  }
+
+  submitMoveRequest() {
+    // validate moveData.newAddress.street/zip/city, moveData.effectiveDate,
+    // movePhoneNumber, selectedMoveDay, selectedMoveTimeSlot — populate fieldErrors as in submitCancellation()
+    // then POST to your service-requests endpoint, e.g.:
+    //   type: 'move', payload: { ...moveData, phone, day, timeSlot, note }
+    // so it lands in admin under "Service Requests"
+    // on success: this.submittedMoveRequest = true;
   }
 
   /*── Meter Section end ──*/

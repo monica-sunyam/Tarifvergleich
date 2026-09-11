@@ -1228,13 +1228,12 @@
                   Rückruf von Berater anfordern
                 </button>
 
-                <button class="meter-orange-btn">Umzug melden</button>
+                <button class="meter-orange-btn" (click)="startMoveReport(item)">Umzug melden</button>
 
                 <!-- <button class="meter-orange-btn" (click)="cancellationService(item)">Kündigungsservice</button> -->
-              
-              
-                <button *ngIf="!item.requestcancellation"
-                  class="meter-orange-btn" (click)="cancellationService(item)">
+
+
+                <button *ngIf="!item.requestcancellation" class="meter-orange-btn" (click)="cancellationService(item)">
                   Kündigungsservice
                 </button>
 
@@ -1750,13 +1749,16 @@
             <br />
             <!-- CHECKBOX -->
             <div class="confirm-box">
-              <input type="checkbox" />
+              <input type="checkbox" [(ngModel)]="meterReadingConfirmed" />
 
               <span>
                 Hiermit bestätige ich, dass die hochgeladenen Zählerfotos mit Zählerstand und
                 Zählernummer entsprechend für mich an den jeweiligen Anbieter übermittelt werden
                 dürfen
               </span>
+            </div>
+            <div class="field-error-msg" *ngIf="fieldErrors['meterReadingConfirmed']">
+              {{ fieldErrors['meterReadingConfirmed'] }}
             </div>
 
             <!-- BUTTONS -->
@@ -1798,9 +1800,10 @@
             und Zählerstand hochladen“ (Dieser Vorgang kann ein wenig dauern, bitte haben Sie etwas
             Geduld).
           </p>
+
           <!-- CHECKBOX -->
           <div class="confirm-box">
-            <input type="checkbox" />
+            <input type="checkbox" [(ngModel)]="photoUploadConfirmed" />
 
             <span>
               Hiermit bestätige ich, dass die hochgeladenen Zählerfotos mit Zählerstand und
@@ -1808,10 +1811,14 @@
               dürfen.
             </span>
           </div>
+          <div class="field-error-msg" *ngIf="fieldErrors['photoUploadConfirmed']">
+            {{ fieldErrors['photoUploadConfirmed'] }}
+          </div>
+
           <div style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px">
             <input type="file" #fileInput accept="image/*" hidden (change)="onFileSelected($event)" />
 
-            <button class="btn-primary" (click)="fileInput.click()">
+            <button class="btn-primary" (click)="triggerPhotoUpload(fileInput)">
               Bitte Zählerfotos mit Zählernummer und Zählerstand hochladen
             </button>
           </div>
@@ -3307,7 +3314,6 @@
       </div>
     </div>
 
-
     <!--══════════ Change Discount ══════════-->
     <div *ngIf="activeTab === 1 && currentStep === 8">
       <div class="login-berich">Abschlag ändern</div>
@@ -3780,6 +3786,340 @@
               <div class="tab-text">
                 {{ scheduleSuccessMessage || 'Ihre Rückrufanfrage wurde erfolgreich übermittelt. Unser Berater wird Sie
                 zum gewünschten Zeitpunkt kontaktieren.' }}
+              </div>
+
+              <div class="tab-text">Vielen Dank für Ihre Anfrage.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--══════════ Report a Move ══════════-->
+    <div *ngIf="activeTab === 1 && currentStep === 10">
+
+      <div class="login-berich">Umzug melden</div>
+      <br />
+
+      <div class="selected-contract-wrapper" *ngIf="!submittedMoveRequest">
+        <div class="selected-contract-header">Ausgewählter Vertrag</div>
+
+        <div class="selected-contract-card">
+          <div class="contract-top">
+            <div class="contract-left">
+              <img [src]="selectedMeter.meterIcon" alt="provider" class="provider-logo" />
+
+              <div class="provider-name">
+                {{ selectedMeter.tariff }}
+              </div>
+
+              <div class="meter-provider-badge">
+                <img [src]="selectedMeter.providerIcon" alt="" class="badge-icon" />
+
+                <span>
+                  {{ selectedMeter.providerType }}
+                </span>
+              </div>
+            </div>
+
+            <div class="contract-center">
+              <div class="contract-row-title">
+                <strong>Zählerbezeichnung:</strong>
+
+                <a class="change-link" *ngIf="!isEditingSelectedMeterName" (click)="editSelectedMeterName()">
+                  ändern
+                  <img src="assets/icons/Bearbeiten_schwarz.png" alt="edit" />
+                </a>
+              </div>
+
+              <div class="meter-id" *ngIf="!isEditingSelectedMeterName">
+                {{ selectedMeter?.meterDesignation }}
+              </div>
+
+              <div class="meter-edit-box" *ngIf="isEditingSelectedMeterName">
+                <input type="text" [(ngModel)]="selectedMeter.meterDesignation" class="meter-input"
+                  placeholder="Zählerbezeichnung" />
+
+                <button type="button" class="icon-action save-icon" (click)="saveSelectedMeterName()">
+                  ✓
+                </button>
+
+                <button type="button" class="icon-action cancel-icon" (click)="cancelSelectedMeterEdit()">
+                  ✕
+                </button>
+              </div>
+              <div class="address-wrap">
+                <p>
+                  <strong>Adresse:</strong>
+                  {{ selectedMeter.address.name }}
+                </p>
+
+                <p>
+                  {{ selectedMeter.address.street }}
+                </p>
+
+                <p>
+                  {{ selectedMeter.address.city }}
+                </p>
+              </div>
+            </div>
+
+            <div class="contract-right">
+              <p>
+                Vertragsnummer:
+                <strong>
+                  {{ selectedMeter.contractNumber }}
+                </strong>
+              </p>
+
+              <p>
+                Kundennummer:
+                <strong>
+                  {{ selectedMeter.customerNumber }}
+                </strong>
+              </p>
+
+              <br />
+
+              <p>
+                Zählernummer:
+                <strong>
+                  {{ selectedMeter.meterNumber }}
+                </strong>
+              </p>
+
+              <p>
+                Marktlokation-ID:
+                <strong>
+                  {{ selectedMeter.marketLocation }}
+                </strong>
+              </p>
+            </div>
+          </div>
+
+          <!-- MOVE FORM -->
+          <div class="meter-reading-section">
+            <h4>Umzug melden</h4>
+            <p class="meter-subtext">
+              Bitte teilen Sie uns die Details zu Ihrem Umzug mit.
+            </p>
+
+
+            <!-- NEW ADDRESS -->
+            <div class="contract-change-subheading" style="margin-bottom: 12px;">
+              Bitte geben Sie die Adresse Ihres neuen Wohnorts an.
+            </div>
+
+            <!-- ZIP + CITY -->
+            <div class="form-row">
+
+              <!-- ZIP -->
+              <div class="form-group postcode">
+                <div class="field-wrap" [class.field-error]="moveFieldErrors['zip']">
+                  <span class="field-label">Ihre PLZ</span>
+
+                  <input type="text" maxlength="5" [(ngModel)]="moveData.newAddress.zip" placeholder="12345" />
+                </div>
+
+                <div class="field-error-msg" *ngIf="moveFieldErrors['zip']">
+                  {{ moveFieldErrors['zip'] }}
+                </div>
+              </div>
+
+              <!-- CITY -->
+              <div class="form-group">
+                <div class="field-wrap dropdown-wrapper" [class.field-error]="moveFieldErrors['city']">
+
+                  <span class="field-label">Ort</span>
+
+                  <input type="text" placeholder="Musterhausen" (input)="onMoveCityInput($event)"
+                    (focus)="showMoveCityDropdown = true" (click)="$event.stopPropagation()" />
+
+                  <div class="dropdown" *ngIf="showMoveCityDropdown">
+
+                    <div *ngIf="moveFilteredCityOptions.length === 0" class="dropdown-item disabled">
+                      Keine Orte gefunden
+                    </div>
+
+                    <div *ngFor="let c of moveFilteredCityOptions" class="dropdown-item" (click)="selectMoveCity(c)">
+                      {{ c.city }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field-error-msg" *ngIf="moveFieldErrors['city']">
+                  {{ moveFieldErrors['city'] }}
+                </div>
+              </div>
+            </div>
+
+            <!-- STREET + HOUSE NUMBER -->
+            <div class="form-row">
+
+              <!-- STREET -->
+              <div class="form-group">
+                <div class="field-wrap dropdown-wrapper" [class.field-error]="moveFieldErrors['street']">
+
+                  <span class="field-label">Ihre Straße</span>
+
+                  <input type="text" placeholder="Mustermannstraße" (input)="onMoveStreetInput($event)"
+                    (focus)="showMoveStreetDropdown = true" (click)="$event.stopPropagation()"
+                    [disabled]="!moveData.newAddress.city" />
+
+                  <div class="dropdown" *ngIf="showMoveStreetDropdown">
+
+                    <div *ngIf="isMoveStreetLoading" class="dropdown-item">
+                      Laden...
+                    </div>
+
+                    <div *ngIf="!isMoveStreetLoading && moveFilteredStreetOptions.length === 0"
+                      class="dropdown-item disabled">
+                      Keine Straße gefunden
+                    </div>
+
+                    <div *ngFor="let s of moveFilteredStreetOptions" class="dropdown-item"
+                      (click)="selectMoveStreet(s)">
+                      {{ s.street }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field-error-msg" *ngIf="moveFieldErrors['street']">
+                  {{ moveFieldErrors['street'] }}
+                </div>
+              </div>
+
+              <!-- HOUSE NUMBER -->
+              <div class="form-group postcode">
+                <div class="field-wrap" [class.field-error]="moveFieldErrors['houseNumber']">
+                  <span class="field-label">Hausnummer</span>
+
+                  <input type="text" [(ngModel)]="moveData.newAddress.houseNumber" placeholder="456" />
+                </div>
+
+                <div class="field-error-msg" *ngIf="moveFieldErrors['houseNumber']">
+                  {{ moveFieldErrors['houseNumber'] }}
+                </div>
+              </div>
+            </div>
+
+            <!-- EFFECTIVE DATE -->
+            <span class="field-label" style="display: block; margin-top: 20px;">
+              Umzugsdatum *
+            </span>
+            <div class="form-row">
+              <div class="form-group" style="flex: 0 0 220px">
+                <div class="field-wrap" (click)="openDatePicker(moveDateInput)">
+                  <input type="date" #moveDateInput style="cursor: pointer;" [(ngModel)]="moveData.effectiveDate" />
+                </div>
+              </div>
+            </div>
+            <div class="field-error-msg" *ngIf="fieldErrors['moveEffectiveDate']">
+              {{ fieldErrors['moveEffectiveDate'] }}
+            </div>
+
+            <!-- OPTIONAL NEW METER NUMBER -->
+            <span class="field-label" style="display: block; margin-top: 20px;">
+              Zählernummer der neuen Adresse (falls bekannt)
+            </span>
+            <div class="form-row">
+              <div class="form-group" style="flex: 0 0 260px">
+                <input type="text" class="meter-input" placeholder="Zählernummer (optional)"
+                  [(ngModel)]="moveData.newMeterNumber" />
+              </div>
+            </div>
+
+            <!-- ADDITIONAL INFO -->
+            <!-- <span class="field-label" style="display: block; margin-top: 20px;">
+              Möchten Sie uns noch etwas mitteilen?
+            </span>
+            <textarea class="information-box" rows="4" placeholder="Platz für weitere Informationen zu Ihrem Umzug"
+              [(ngModel)]="moveData.additionalInfo"></textarea>
+
+            <h4 style="margin-top: 24px;">Rückruf von Berater anfordern</h4>
+            <p class="meter-subtext">Bitte tragen Sie hier die Details Ihres Rückrufs ein.</p> -->
+
+            <!-- Phone Number -->
+            <div class="container-wish">
+              <span class="telefon">Bitte geben Sie Ihre Telefonnummer an, <br />
+                unter der wir Sie erreichen können.
+              </span>
+            </div>
+            <div class="container-phone">
+              <input class="country-code" type="text" [(ngModel)]="countryCode" readonly />
+              <input type="number" placeholder="Mobilnummer oder Festnetznummer" [(ngModel)]="phoneNumber"
+                class="number" />
+            </div>
+
+            <div class="field-error-msg" *ngIf="fieldErrors['phoneNumber']">
+              {{ fieldErrors['phoneNumber'] }}
+            </div>
+
+            <!-- Day Selection -->
+            <span class="field-label"> Bitte wählen Sie den Wochentag </span>
+            <div class="container-days">
+              <button type="button" class="days" *ngFor="let day of filteredDays; trackBy: trackByDay"
+                (click)="selectDay(day)" [class.active]="selectedDay?.date === day.date">
+                {{ getDayLabel(day.date) }}
+                ({{ day.label }})
+              </button>
+            </div>
+            <div class="field-error-msg" *ngIf="fieldErrors['selectedDay']">{{ fieldErrors['selectedDay'] }}</div>
+
+            <!-- Time Selection -->
+            <span class="field-label"> Bitte wählen Sie die Uhrzeit </span>
+            <div class="container-days">
+              <button type="button" class="days" *ngFor="let slot of timeSlots" (click)="selectTimeSlot(slot.value)"
+                [class.active]="selectedTimeSlot === slot.value" [disabled]="!isTimeSlotEnabled(slot.value)"
+                [class.disabled]="!isTimeSlotEnabled(slot.value)">
+                {{ slot.label }}
+              </button>
+            </div>
+            <div class="field-error-msg" *ngIf="fieldErrors['selectedTimeSlot']">{{ fieldErrors['selectedTimeSlot'] }}
+            </div>
+
+
+            <!-- Additional Information -->
+            <span class="field-label"> Weitere Informationen </span>
+            <textarea class="information-box" rows="4"
+              placeholder="Platz für Infos, z.B. genaue Uhrzeit, an der Sie gut erreichbar sind"
+              [(ngModel)]="scheduleDescription"></textarea>
+            <div class="field-error-msg" *ngIf="fieldErrors['scheduleDescription']">{{
+              fieldErrors['scheduleDescription'] }}</div>
+
+            <!-- Success/Error -->
+            <div class="api-message success" *ngIf="moveScheduleSuccessMessage">
+              {{ moveScheduleSuccessMessage }}
+            </div>
+            <div class="field-error-msg" *ngIf="moveScheduleErrorMessage">
+              {{ moveScheduleErrorMessage }}
+            </div>
+
+            <!-- Submit -->
+            <div class="meter-btn-row">
+              <button type="button" class="btn-primary" (click)="submitMoveRequest()"
+                [disabled]="isSubmittingMoveRequest">
+                <span *ngIf="isSubmittingMoveRequest">
+                  <span class="spinner"></span> Einreichen...
+                </span>
+                <span *ngIf="!isSubmittingMoveRequest">Anfrage senden</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-box" style="width: auto" *ngIf="submittedMoveRequest">
+        <div class="success-content">
+          <div class="success-row">
+            <img src="assets/icons/Kreis_Haken_gruen.png" alt="success" />
+
+            <div class="text-block">
+              <div class="tab-header">Umzug erfolgreich gemeldet!</div>
+
+              <div class="tab-text">
+                {{ moveScheduleSuccessMessage || 'Ihre Umzugsmeldung wurde erfolgreich übermittelt. Unser Berater wird
+                Sie zum gewünschten Zeitpunkt kontaktieren.' }}
               </div>
 
               <div class="tab-text">Vielen Dank für Ihre Anfrage.</div>

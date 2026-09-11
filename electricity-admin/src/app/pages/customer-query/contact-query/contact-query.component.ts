@@ -200,7 +200,6 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
   }
 
   toggleQueryStatus(entry: ContactQuery, event: Event): void {
-
     event.stopPropagation();
 
     const newStatus = !entry.isResolved;
@@ -210,12 +209,9 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
       isResolved: newStatus,
     };
 
-    this.api.post("/toggle-contact-query-status", payload).subscribe({
-
+    this.api.post("toggle-contact-query-status", payload).subscribe({
       next: (res: any) => {
-
         if (res?.res) {
-
           entry.isResolved = newStatus;
 
           if (newStatus) {
@@ -249,8 +245,8 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
     setTimeout(() => this.searchInputRef?.nativeElement.blur(), 50);
   }
   // ── Sidebar ───────────────────────────────────────────────────
-
-  openSidebar(entry: ContactQuery): void {
+  selectedIndex: number | null = null;
+  openSidebar(entry: ContactQuery, index: number): void {
     if (
       this.selectedEntry?.customerQueryContactId ===
       entry.customerQueryContactId
@@ -259,11 +255,13 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedEntry = entry;
+    this.selectedIndex = index;
     this.isSidebarOpen = true;
   }
 
   closeSidebar(): void {
     this.isSidebarOpen = false;
+    this.selectedIndex = null;
     this.selectedEntry = null;
   }
 
@@ -276,7 +274,7 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
 
   // ── Link Customer Modal ───────────────────────────────────────
 
-  openLinkModal(event: Event, entry: ContactQuery): void {
+  openLinkModal(event: Event, entry: ContactQuery, index: number): void {
     event.stopPropagation();
     this.modalEntry = entry;
     this.isModalOpen = true;
@@ -286,6 +284,7 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
     this.isDropdownOpen = false;
     this.linkSuccessMessage = "";
     this.linkErrorMessage = "";
+    this.selectedIndex = index;
     this.searchCustomers("");
   }
 
@@ -298,6 +297,7 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
     this.isDropdownOpen = false;
     this.linkSuccessMessage = "";
     this.linkErrorMessage = "";
+    this.selectedIndex = null;
   }
 
   // Focus the hidden input when clicking the tag box
@@ -450,14 +450,16 @@ export class ContactQueryComponent implements OnInit, OnDestroy {
 
   // ── View Linked Users ─────────────────────────────────────────
 
-  openViewLinkedModal(event: Event, entry: ContactQuery): void {
+  openViewLinkedModal(event: Event, entry: ContactQuery, index: number): void {
     event.stopPropagation();
     this.viewLinkedEntry = entry;
+    this.selectedIndex = index;
     this.isViewLinkedModalOpen = true;
   }
 
   closeViewLinkedModal(): void {
     this.isViewLinkedModalOpen = false;
+    this.selectedIndex = null;
     this.viewLinkedEntry = null;
   }
 
